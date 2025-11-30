@@ -1,0 +1,25 @@
+# --- IDEs (IntelliJ & VS Code) ---
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# --- Java Compilação ---
+out/
+bin/
+target/
+*.class
+
+# --- Ficheiros do Sistema ---
+.DS_Store
+Thumbs.db
+
+# --- Documentação / Ficheiros específicos teus ---
+# Ignorar o PDF do enunciado (conforme pediste)
+trab-sd-2026.pdf
+*.pdf
+
+# --- Logs e Temporários ---
+*.log
+*.tmp
