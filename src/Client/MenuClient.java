@@ -1,6 +1,7 @@
 // java
 package Client;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -30,6 +31,7 @@ public class MenuClient {
                 "7 - Filtrar eventos (dia d, lista produtos separada por ,)",
                 "8 - Notificação: vendas simultâneas (p1,p2)",
                 "9 - Notificação: vendas consecutivas (n)",
+                "10- Mostrar respostas pendentes"
         });
 
         // Handlers
@@ -51,7 +53,15 @@ public class MenuClient {
 
         menu.setHandler(9, this::notifyConsecutiveSales);
 
-        menu.setHandler(0, () -> sair[0] = true);
+        menu.setHandler(10, this::showPendingReplies);
+
+        menu.setHandler(0, () -> {
+
+                sair[0] = true;
+                this.logout();
+        });
+
+        menu.setPreCondition(10, () -> this.hasPendingReplies());
 
         do {
             menu.run();
@@ -62,28 +72,8 @@ public class MenuClient {
         System.out.println("Registar evento selecionado");
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
-        System.out.println("Indica a quantidade: ");
-        int quant = 0;
-        boolean numeroValido = false;
-        while (!numeroValido) {
-            try {
-                quant = Integer.parseInt(sc.nextLine());
-                numeroValido = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Escreve um número válido.");
-            }
-        }
-        System.out.println("Indica o preço: ");
-        float preco = 0;
-        numeroValido = false;
-        while (!numeroValido) {
-            try {
-                preco = Float.parseFloat(sc.nextLine());
-                numeroValido = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Escreve um número válido.");
-            }
-        }
+        int quant = readInt("Indica a quantidade: ");
+        float preco = readFloat("Indica o preço: ");
         controller.RegisterEvent(produto, quant, preco);
     }
 
@@ -96,17 +86,7 @@ public class MenuClient {
         System.out.println("Quantidade de vendas selected");
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
-        System.out.println("Indica o numero de dias a analizar: ");
-        int dia = 0;
-        boolean numeroValido = false;
-        while (!numeroValido) {
-            try {
-                dia = Integer.parseInt(sc.nextLine());
-                numeroValido = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Escreve um número válido.");
-            }
-        }
+        int dia = readInt("Indica o numero de dias a analizar: ");
         controller.getSalesQuantity(produto, dia);
     }
 
@@ -114,17 +94,7 @@ public class MenuClient {
         System.out.println("Volume de vendas selected");
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
-        System.out.println("Indica o numero de dias a analizar: ");
-        int dia = 0;
-        boolean numeroValido = false;
-        while (!numeroValido) {
-            try {
-                dia = Integer.parseInt(sc.nextLine());
-                numeroValido = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Escreve um número válido.");
-            }
-        }
+        int dia = readInt("Indica o numero de dias a analizar: ");
         controller.getSalesVolume(produto, dia);
     }
 
@@ -132,17 +102,7 @@ public class MenuClient {
         System.out.println("Preço médio de venda selected");
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
-        System.out.println("Indica o numero de dias a analizar: ");
-        int dia = 0;
-        boolean numeroValido = false;
-        while (!numeroValido) {
-            try {
-                dia = Integer.parseInt(sc.nextLine());
-                numeroValido = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Escreve um número válido.");
-            }
-        }
+        int dia = readInt("Indica o numero de dias a analizar: ");
         controller.getAverageSalesPrice(produto, dia);
     }
 
@@ -150,17 +110,7 @@ public class MenuClient {
         System.out.println("Preço máximo de venda selected");
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
-        System.out.println("Indica o numero de dias a analizar: ");
-        int dia = 0;
-        boolean numeroValido = false;
-        while (!numeroValido) {
-            try {
-                dia = Integer.parseInt(sc.nextLine());
-                numeroValido = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Escreve um número válido.");
-            }
-        }
+        int dia = readInt("Indica o numero de dias a analizar: ");
         controller.getMaxSalesPrice(produto, dia);
     }
 
@@ -175,17 +125,7 @@ public class MenuClient {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        System.out.println("Indica o dia a analizar: ");
-        int dia = 0;
-        boolean numeroValido = false;
-        while (!numeroValido) {
-            try {
-                dia = Integer.parseInt(sc.nextLine());
-                numeroValido = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Escreve um número válido.");
-            }
-        }
+        int dia = readInt("Indica o dia a analizar: ");
         controller.filterEvents(produtos, dia);
     }
 
@@ -200,22 +140,56 @@ public class MenuClient {
 
     private void notifyConsecutiveSales() {
         System.out.println("Notificação: vendas consecutivas selected");
-        System.out.println("Indica o número de vendas consecutivas: ");
-        int n = 0;
-        boolean numeroValido = false;
-        while (!numeroValido) {
+        int n = readInt("Indica o número de vendas consecutivas: ");
+        controller.notifyConsecutiveSales(n);
+    }
+
+    private void showPendingReplies (){
+        System.out.println("Respostas pendentes:");
+        System.out.println(controller.getPendingReplies());
+    }
+
+    private boolean hasPendingReplies() {
+        return controller.hasPendingReplies();
+    }
+
+    private void logout() {
+        try{
+            controller.close();
+        } catch (IOException e){
+            System.out.println("Erro ao fechar a ligação com o servidor.");
+        }
+    }
+
+    ///////////////////////////////////////////////////////  Métodos auxiliares de leitura  ///////////////////////////////////////////////////////
+    private int readInt(String prompt) {
+        int value = 0;
+        boolean valid = false;
+        while (!valid) {
+            System.out.print(prompt);
             try {
-                n = Integer.parseInt(sc.nextLine());
-                numeroValido = true;
+                value = Integer.parseInt(sc.nextLine());
+                valid = true;
             } catch (NumberFormatException e) {
                 System.out.println("Escreve um número válido.");
             }
         }
-        controller.notifyConsecutiveSales(n);
+        return value;
     }
 
-    public static void main(String[] args) {
-        MenuClient mc = new MenuClient(new Scanner(System.in), new Controller());
-        mc.run();
+    private float readFloat(String prompt) {
+        float value = 0;
+        boolean valid = false;
+        while (!valid) {
+            System.out.print(prompt);
+            try {
+                value = Float.parseFloat(sc.nextLine());
+                valid = true;
+            } catch (NumberFormatException e) {
+                System.out.println("Escreve um número válido.");
+            }
+        }
+        return value;
     }
+
 }

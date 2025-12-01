@@ -6,11 +6,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Connection implements AutoCloseable {
-    public static class Frame {
-        public final int tag;
-        public final byte[] data;
-        public Frame(int tag, byte[] data) { this.tag = tag; this.data = data; }
-    }
     Socket socket;
     private DataInputStream in;
     private DataOutputStream out;
@@ -24,18 +19,16 @@ public class Connection implements AutoCloseable {
     }
 
     public void send(Frame frame) throws IOException {
-        send(frame.tag, frame.data);
+        send(frame.getType(), frame.getData());
     }
 
-    public void send(int tag, byte[] data) throws IOException {
+    public void send(Type type, byte[] data) throws IOException {
         writeLock.lock();
         try{
-            if (tag!= 0){
-                out.writeInt(tag);
-                out.writeInt(data.length);
-                out.write(data);
-                out.flush();
-            }
+            out.writeInt(type.getValue());
+            out.writeInt(data.length);
+            out.write(data);
+            out.flush();
         }   finally{
             writeLock.unlock();
         }
@@ -48,7 +41,7 @@ public class Connection implements AutoCloseable {
             int length = in.readInt();
             byte[] data = new byte[length];
             in.readFully(data);
-            return new Frame(tag, data);
+            return new Frame(Type.REPLY, data);
         }   finally{
             readLock.unlock();
         }

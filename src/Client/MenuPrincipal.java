@@ -1,5 +1,6 @@
 package Client;
 
+import java.io.IOException;
 import java.util.Scanner;
 import Exceptions.*;
 
@@ -46,6 +47,9 @@ public class MenuPrincipal implements Runnable {
         } catch (InvalidCredentialsException e){
             System.out.println("Credenciais inválidas. Tenta novamente.");
             return;
+        } catch (IOException e) {
+            System.out.println("Ocorreu um erro durante o login. Tenta novamente.");
+            return;
         }
 
     }
@@ -61,6 +65,9 @@ public class MenuPrincipal implements Runnable {
             System.out.println("Registo efectuado com sucesso!");
         } catch (UsernameAlreadyExistsException e){
             System.out.println("Username já existe. Tenta novamente.");
+            return;
+        } catch (IOException e) {
+            System.out.println("Ocorreu um erro durante o registo. Tenta novamente.");
             return;
         }
     }

@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import Conn.Connection.Frame;
 
 ////  todo mudar para funcionar no novo tipo de comunicação
 public class Demultiplexer implements AutoCloseable {
@@ -42,8 +41,8 @@ public class Demultiplexer implements AutoCloseable {
             try {
                 for (;;) {
                     Frame frame = conn.receive();
-                    int tag = frame.tag;
-                    byte[] data = frame.data;
+                    int tag = frame.getType().getValue();
+                    byte[] data = frame.getData();
                     l.lock();
                     try {
                         Entry entry = getEntry(tag);
@@ -78,8 +77,8 @@ public class Demultiplexer implements AutoCloseable {
         this.conn.send(frame);
     }
 
-    public void send(int tag, byte[] data) throws IOException {
-        this.conn.send(tag, data);
+    public void send(Type type, byte[] data) throws IOException {
+        this.conn.send(type, data);
     }
 
     public byte[] receive(int tag) throws IOException, InterruptedException {
