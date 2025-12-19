@@ -3,14 +3,21 @@ package Client;
 import java.io.IOException;
 import java.util.Scanner;
 import Exceptions.*;
+import Server.Loja;
 
 public class MenuPrincipal implements Runnable {
     Scanner sc;
-    private Controller controller;
+    private Loja stub;
+    private boolean ErroConexao = false;
 
     public MenuPrincipal() {
         this.sc = new Scanner(System.in);
-        this.controller = new Controller();
+        try {
+            this.stub = new LojaStub();
+        } catch (Exception e) {
+            System.out.println("Erro ao conectar ao servidor: " + e.getMessage());
+            ErroConexao = true;
+        }
     }
 
     public void run () {
@@ -21,12 +28,18 @@ public class MenuPrincipal implements Runnable {
                 "\n======== MENU ========",
                 "1- Login",
                 "2- Registar",
+                "3- Reconectar ao Servidor",
                 "0- Sair"
         });
 
         menu.setHandler(1, this::doLogin);
         menu.setHandler(2, this::doRegister);
+        menu.setHandler(3, this::reconnect);
         menu.setHandler(0, () -> sair[0] = true);
+
+        menu.setPreCondition(1,() -> !ErroConexao);
+        menu.setPreCondition(2,() -> !ErroConexao);
+        menu.setPreCondition(3,() -> ErroConexao);
 
         do {
             menu.run();
@@ -40,18 +53,14 @@ public class MenuPrincipal implements Runnable {
         System.out.println("Indica a tua password: ");
         String password = sc.nextLine();
         try{
-            controller.fazerLogin(username, password);
+            stub.fazerLogin(username, password);
             System.out.println("Login efectuado com sucesso!");
-            MenuClient menuCliente = new MenuClient(sc, controller);
+            MenuClient menuCliente = new MenuClient(sc, stub);
             menuCliente.run();
         } catch (InvalidCredentialsException e){
             System.out.println("Credenciais inválidas. Tenta novamente.");
             return;
-        } catch (IOException e) {
-            System.out.println("Ocorreu um erro durante o login. Tenta novamente.");
-            return;
         }
-
     }
 
     private void doRegister() {
@@ -61,14 +70,23 @@ public class MenuPrincipal implements Runnable {
         System.out.println("Indica a tua password: ");
         String password = sc.nextLine();
         try{
-            controller.fazerRegisto(username, password);
+            stub.fazerRegisto(username, password);
             System.out.println("Registo efectuado com sucesso!");
         } catch (UsernameAlreadyExistsException e){
             System.out.println("Username já existe. Tenta novamente.");
             return;
-        } catch (IOException e) {
-            System.out.println("Ocorreu um erro durante o registo. Tenta novamente.");
-            return;
+        }
+    }
+
+    private void reconnect() {
+        System.out.println("Reconectar ao Servidor selected");
+        try {
+            this.stub = new LojaStub();
+            ErroConexao = false;
+            System.out.println("Reconexão bem sucedida!");
+        } catch (Exception e) {
+            System.out.println("Erro ao conectar ao servidor: " + e.getMessage());
+            ErroConexao = true;
         }
     }
 }

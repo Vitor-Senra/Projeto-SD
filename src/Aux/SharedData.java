@@ -52,9 +52,9 @@ public class SharedData {
                 else
                     sb.append("Key: ").append(entry.getKey()).append(", Value: Ainda sem resposta do servidor\n");
             }
+            return sb.toString();
         } finally {
             lock.unlock();
         }
-        return sb.toString();
     }
 }

@@ -1,6 +1,8 @@
 // java
 package Client;
 
+import Server.Loja;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -9,12 +11,12 @@ import java.util.stream.Collectors;
 
 public class MenuClient {
     private Scanner sc;
-    private Controller controller;
+    private Loja stub;
 
 
-    public MenuClient(Scanner sc,Controller controller) {
+    public MenuClient(Scanner sc, Loja controller) {
         this.sc = sc;
-        this.controller = controller;
+        this.stub = controller;
     }
 
     public void run() {
@@ -74,12 +76,12 @@ public class MenuClient {
         String produto = sc.nextLine();
         int quant = readInt("Indica a quantidade: ");
         float preco = readFloat("Indica o preço: ");
-        controller.RegisterEvent(produto, quant, preco);
+        stub.RegisterEvent(produto, quant, preco);
     }
 
     private void startNewDay() {
         System.out.println("Começar novo dia selected");
-        controller.newDay();
+        stub.newDay();
     }
 
     private void getSalesQuantity() {
@@ -87,7 +89,7 @@ public class MenuClient {
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
         int dia = readInt("Indica o numero de dias a analizar: ");
-        controller.getSalesQuantity(produto, dia);
+        stub.getSalesQuantity(produto, dia);
     }
 
     private void getSalesVolume() {
@@ -95,7 +97,7 @@ public class MenuClient {
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
         int dia = readInt("Indica o numero de dias a analizar: ");
-        controller.getSalesVolume(produto, dia);
+        stub.getSalesVolume(produto, dia);
     }
 
     private void getAverageSalesPrice() {
@@ -103,7 +105,7 @@ public class MenuClient {
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
         int dia = readInt("Indica o numero de dias a analizar: ");
-        controller.getAverageSalesPrice(produto, dia);
+        stub.getAverageSalesPrice(produto, dia);
     }
 
     private void getMaxSalesPrice() {
@@ -111,7 +113,7 @@ public class MenuClient {
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
         int dia = readInt("Indica o numero de dias a analizar: ");
-        controller.getMaxSalesPrice(produto, dia);
+        stub.getMaxSalesPrice(produto, dia);
     }
 
     private void filterEvents() {
@@ -126,7 +128,7 @@ public class MenuClient {
                 .collect(Collectors.toList());
 
         int dia = readInt("Indica o dia a analizar: ");
-        controller.filterEvents(produtos, dia);
+        stub.filterEvents(produtos, dia);
     }
 
     private void notifySimultaneousSales() {
@@ -135,27 +137,30 @@ public class MenuClient {
         String produto1 = sc.nextLine();
         System.out.println("Indica o nome do segundo produto: ");
         String produto2 = sc.nextLine();
-        controller.notifySimultaneousSales(produto1, produto2);
+        stub.notifySimultaneousSales(produto1, produto2);
     }
 
     private void notifyConsecutiveSales() {
         System.out.println("Notificação: vendas consecutivas selected");
         int n = readInt("Indica o número de vendas consecutivas: ");
-        controller.notifyConsecutiveSales(n);
+        stub.notifyConsecutiveSales(n);
     }
 
     private void showPendingReplies (){
         System.out.println("Respostas pendentes:");
-        System.out.println(controller.getPendingReplies());
+        LojaStub Stub = (LojaStub) stub;
+        System.out.println(Stub.getPendingReplies());
     }
 
     private boolean hasPendingReplies() {
-        return controller.hasPendingReplies();
+        LojaStub Stub = (LojaStub) stub;
+        return Stub.hasPendingReplies();
     }
 
     private void logout() {
         try{
-            controller.close();
+            LojaStub Stub = (LojaStub) stub;
+            Stub.close();
         } catch (IOException e){
             System.out.println("Erro ao fechar a ligação com o servidor.");
         }

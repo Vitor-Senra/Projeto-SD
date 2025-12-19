@@ -7,43 +7,48 @@ import Conn.*;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
+import Server.Loja;
 
 
-public class Controller {
+public class LojaStub implements Loja {
     private Demultiplexer m;
     private Socket s;
     private SharedData sharedData;
 
-    Controller() {
-        try {
-            s = new Socket("localhost", 12345);
-            this.m = new Demultiplexer(new Connection(s));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    LojaStub() throws Exception {
+        s = new Socket("localhost", 12345);
+        this.m = new Demultiplexer(new Connection(s));
         m.start();
         this.sharedData = new SharedData ();
     }
 
-    public void fazerLogin(String username, String password) throws InvalidCredentialsException, IOException {
+    public void fazerLogin(String username, String password) throws InvalidCredentialsException {
+        try {
             m.send(Type.LOGIN, (username + ";" + password).getBytes());
+        } catch (IOException exceptionIgnored) {
+        }
     }
 
-    public void fazerRegisto(String username, String password) throws UsernameAlreadyExistsException, IOException {
-        m.send(Type.REGISTER, (username + ";" + password).getBytes());
+
+    public void fazerRegisto(String username, String password) throws UsernameAlreadyExistsException {
+        try{
+            m.send(Type.REGISTER, (username + ";" + password).getBytes());
+        } catch (IOException exceptionIgnored) {}
     }
 
     public void RegisterEvent(String product, int quantity, double price) {
         new Thread(() -> {
             try  {
                 // send request
-                m.send(Type.REGISTER_EVENT, (product + ";" + quantity + ";" + price).getBytes());
                 int key = sharedData.getCounter();
                 sharedData.putData(key,null);
+                m.send(Type.REGISTER_EVENT, (product + ";" + quantity + ";" + price).getBytes());
                 // get reply
                 byte[] data = m.receive(1);
                 sharedData.putData(key,new String(data));
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
@@ -52,7 +57,9 @@ public class Controller {
             try  {
                 // send request
                 m.send(Type.NEW_DAY,new byte[0]);
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
@@ -65,7 +72,9 @@ public class Controller {
                 // get reply
                 byte[] data = m.receive(1);
                 sharedData.putData(key,new String(data));
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
@@ -78,7 +87,9 @@ public class Controller {
                 // get reply
                 byte[] data = m.receive(1);
                 sharedData.putData(key,new String(data));
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
@@ -91,7 +102,9 @@ public class Controller {
                 // get reply
                 byte[] data = m.receive(1);
                 sharedData.putData(key,new String(data));
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
@@ -104,7 +117,9 @@ public class Controller {
                 // get reply
                 byte[] data = m.receive(1);
                 sharedData.putData(key,new String(data));
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
@@ -117,7 +132,9 @@ public class Controller {
                 // get reply
                 byte[] data = m.receive(1);
                 sharedData.putData(key,new String(data));
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
@@ -130,7 +147,9 @@ public class Controller {
                 // get reply
                 byte[] data = m.receive(1);
                 sharedData.putData(key,new String(data));
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
@@ -143,7 +162,9 @@ public class Controller {
                 // get reply
                 byte[] data = m.receive(1);
                 sharedData.putData(key,new String(data));
-            }  catch (Exception ignored) {}
+            }  catch (Exception e) {
+                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
+            }
         }).start();
     }
 
