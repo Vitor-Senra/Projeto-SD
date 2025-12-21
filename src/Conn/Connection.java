@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import Aux.Message;
 
 public class Connection implements AutoCloseable {
     Socket socket;
@@ -18,30 +19,20 @@ public class Connection implements AutoCloseable {
         this.out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
     }
 
-    public void send(Frame frame) throws IOException {
-        send(frame.getType(), frame.getData());
-    }
-
-    public void send(Type type, byte[] data) throws IOException {
+    public void send(Message mensagem) throws IOException {
         writeLock.lock();
-        try{
-            out.writeInt(type.getValue());
-            out.writeInt(data.length);
-            out.write(data);
+        try {
+            mensagem.serialize(out);
             out.flush();
-        }   finally{
+        } finally {
             writeLock.unlock();
         }
     }
 
-    public Frame receive() throws IOException {
+    public Message receive() throws IOException {
         readLock.lock();
         try{
-            int tag = in.readInt();
-            int length = in.readInt();
-            byte[] data = new byte[length];
-            in.readFully(data);
-            return new Frame(Type.REPLY, data);
+            return Message.deserialize(in);
         }   finally{
             readLock.unlock();
         }

@@ -12,7 +12,10 @@ public enum Type {
     FILTER_EVENTS(9),
     NOTIFY_SIMULTANEOUS_SALES(10),
     NOTIFY_CONSECUTIVE_SALES(11),
-    REPLY(0);
+    REPLY_BOOLEAN(-1),
+    REPLY_INT(-2),
+    REPLY_DOUBLE(-3),
+    REPLY_LIST(-4);
 
 
 
@@ -20,6 +23,15 @@ public enum Type {
 
     Type(int value) {
         this.value = value;
+    }
+
+    public static Type fromInt(int val) {
+        for (Type type : Type.values()) {
+            if (type.getValue() == val) {
+                return type;
+            }
+        }
+        return null;
     }
 
     public int getValue() {

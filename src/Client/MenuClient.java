@@ -1,6 +1,7 @@
 // java
 package Client;
 
+import Aux.SharedData;
 import Server.Loja;
 
 import java.io.IOException;
@@ -63,7 +64,7 @@ public class MenuClient {
                 this.logout();
         });
 
-        menu.setPreCondition(10, () -> this.hasPendingReplies());
+        menu.setPreCondition(10, () -> !this.hasPendingReplies());
 
         do {
             menu.run();
@@ -76,12 +77,16 @@ public class MenuClient {
         String produto = sc.nextLine();
         int quant = readInt("Indica a quantidade: ");
         float preco = readFloat("Indica o preço: ");
-        stub.RegisterEvent(produto, quant, preco);
+        new Thread(() -> {
+            stub.RegisterEvent(produto, quant, preco);
+        }).start();
     }
 
     private void startNewDay() {
         System.out.println("Começar novo dia selected");
-        stub.newDay();
+        new Thread(() -> {
+            stub.newDay();
+        }).start();
     }
 
     private void getSalesQuantity() {
@@ -89,7 +94,9 @@ public class MenuClient {
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
         int dia = readInt("Indica o numero de dias a analizar: ");
-        stub.getSalesQuantity(produto, dia);
+        new Thread(() -> {
+            stub.getSalesQuantity(produto, dia);
+        }).start();
     }
 
     private void getSalesVolume() {
@@ -97,7 +104,9 @@ public class MenuClient {
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
         int dia = readInt("Indica o numero de dias a analizar: ");
-        stub.getSalesVolume(produto, dia);
+        new Thread(() -> {
+            stub.getSalesVolume(produto, dia);
+        }).start();
     }
 
     private void getAverageSalesPrice() {
@@ -105,7 +114,9 @@ public class MenuClient {
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
         int dia = readInt("Indica o numero de dias a analizar: ");
-        stub.getAverageSalesPrice(produto, dia);
+        new Thread(() -> {
+            stub.getAverageSalesPrice(produto, dia);
+        }).start();
     }
 
     private void getMaxSalesPrice() {
@@ -113,7 +124,9 @@ public class MenuClient {
         System.out.println("Indica o nome do produto: ");
         String produto = sc.nextLine();
         int dia = readInt("Indica o numero de dias a analizar: ");
-        stub.getMaxSalesPrice(produto, dia);
+        new Thread(() -> {
+            stub.getMaxSalesPrice(produto, dia);
+        }).start();
     }
 
     private void filterEvents() {
@@ -128,7 +141,9 @@ public class MenuClient {
                 .collect(Collectors.toList());
 
         int dia = readInt("Indica o dia a analizar: ");
-        stub.filterEvents(produtos, dia);
+        new Thread(() -> {
+            stub.filterEvents(produtos, dia);
+        }).start();
     }
 
     private void notifySimultaneousSales() {
@@ -137,13 +152,17 @@ public class MenuClient {
         String produto1 = sc.nextLine();
         System.out.println("Indica o nome do segundo produto: ");
         String produto2 = sc.nextLine();
-        stub.notifySimultaneousSales(produto1, produto2);
+        new Thread(() -> {
+            stub.notifySimultaneousSales(produto1, produto2);
+        }).start();
     }
 
     private void notifyConsecutiveSales() {
         System.out.println("Notificação: vendas consecutivas selected");
         int n = readInt("Indica o número de vendas consecutivas: ");
-        stub.notifyConsecutiveSales(n);
+        new Thread(() -> {
+            stub.notifyConsecutiveSales(n);
+        }).start();
     }
 
     private void showPendingReplies (){

@@ -1,5 +1,6 @@
 package Client;
 
+import Aux.*;
 import Aux.SharedData;
 import Exceptions.*;
 import Conn.*;
@@ -23,149 +24,153 @@ public class LojaStub implements Loja {
     }
 
     public void fazerLogin(String username, String password) throws InvalidCredentialsException {
+        int key = sharedData.getCounter();
         try {
-            m.send(Type.LOGIN, (username + ";" + password).getBytes());
+            m.send(new AuthMessage(key,0,Type.LOGIN,username,password));
         } catch (IOException exceptionIgnored) {
         }
     }
 
 
     public void fazerRegisto(String username, String password) throws UsernameAlreadyExistsException {
+        int key = sharedData.getCounter();
         try{
-            m.send(Type.REGISTER, (username + ";" + password).getBytes());
-        } catch (IOException exceptionIgnored) {}
+            m.send(new AuthMessage(key,0,Type.REGISTER,username,password));
+            m.receive(key);
+        } catch (Exception exceptionIgnored) {}
     }
 
     public void RegisterEvent(String product, int quantity, double price) {
-        new Thread(() -> {
-            try  {
-                // send request
-                int key = sharedData.getCounter();
-                sharedData.putData(key,null);
-                m.send(Type.REGISTER_EVENT, (product + ";" + quantity + ";" + price).getBytes());
-                // get reply
-                byte[] data = m.receive(1);
-                sharedData.putData(key,new String(data));
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            sharedData.putData(key,null);
+            m.send(new RegisterEventMessage(key,0,Type.REGISTER_EVENT, product,quantity,price));
+            // get reply
+            Message data = m.receive(key);
+            sharedData.putData(key,data.toString());
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
     }
 
     public void newDay() {
-        new Thread(() -> {
-            try  {
-                // send request
-                m.send(Type.NEW_DAY,new byte[0]);
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            m.send(new EmptyMessage(key,0,Type.REGISTER_EVENT));
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
     }
 
-    public void getSalesQuantity(String product, int day) {
-        new Thread(() -> {
-            try  {
-                // send request
-                m.send(Type.GET_SALES_QUANTITY, (product + ";" + day).getBytes());
-                int key = sharedData.getCounter();
-                // get reply
-                byte[] data = m.receive(1);
-                sharedData.putData(key,new String(data));
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+    public int getSalesQuantity(String product, int day) {
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            m.send(new AggregationMessage(key,0,Type.REGISTER_EVENT, product,day));
+            // get reply
+            Message data = m.receive(key);
+            sharedData.putData(key,data.toString());
+            ReplyIntMessage res = (ReplyIntMessage) data;
+            return res.getValue();
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
+        return -1;
     }
 
-    public void getSalesVolume(String product, int day) {
-        new Thread(() -> {
-            try  {
-                // send request
-                m.send(Type.GET_SALES_VOLUME, (product + ";" + day).getBytes());
-                int key = sharedData.getCounter();
-                // get reply
-                byte[] data = m.receive(1);
-                sharedData.putData(key,new String(data));
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+    public int getSalesVolume(String product, int day) {
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            m.send(new AggregationMessage(key,0,Type.REGISTER_EVENT, product,day));
+            // get reply
+            Message data = m.receive(key);
+            sharedData.putData(key,data.toString());
+            ReplyIntMessage res = (ReplyIntMessage) data;
+            return res.getValue();
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
+        return -1;
     }
 
-    public void getAverageSalesPrice(String product, int day) {
-        new Thread(() -> {
-            try  {
-                // send request
-                m.send(Type.GET_AVERAGE_SALES_PRICE, (product + ";" + day).getBytes());
-                int key = sharedData.getCounter();
-                // get reply
-                byte[] data = m.receive(1);
-                sharedData.putData(key,new String(data));
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+    public double getAverageSalesPrice(String product, int day) {
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            m.send(new AggregationMessage(key,0,Type.REGISTER_EVENT, product,day));
+            // get reply
+            Message data = m.receive(key);
+            sharedData.putData(key,data.toString());
+            ReplyDoubleMessage res = (ReplyDoubleMessage) data;
+            return res.getValue();
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
+        return -1;
     }
 
-    public void getMaxSalesPrice(String product, int day) {
-        new Thread(() -> {
-            try  {
-                // send request
-                m.send(Type.GET_MAX_SALES_PRICE, (product + ";" + day).getBytes());
-                int key = sharedData.getCounter();
-                // get reply
-                byte[] data = m.receive(1);
-                sharedData.putData(key,new String(data));
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+    public double getMaxSalesPrice(String product, int day) {
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            m.send(new AggregationMessage(key,0,Type.REGISTER_EVENT, product,day));
+            // get reply
+            Message data = m.receive(key);
+            sharedData.putData(key,data.toString());
+            ReplyDoubleMessage res = (ReplyDoubleMessage) data;
+            return res.getValue();
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
+        return -1;
     }
 
     public void filterEvents(List<String> product, int day) {
-        new Thread(() -> {
-            try  {
-                // send request
-                m.send(Type.GET_SALES_QUANTITY, (product + ";" + day).getBytes());
-                int key = sharedData.getCounter();
-                // get reply
-                byte[] data = m.receive(1);
-                sharedData.putData(key,new String(data));
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            m.send(new FilterMessage(key,0,Type.REGISTER_EVENT, product,day));
+            // get reply
+            Message data = m.receive(key);
+            sharedData.putData(key,data.toString());
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
     }
 
-    public void notifySimultaneousSales(String p1, String p2) {
-        new Thread(() -> {
-            try  {
-                // send request
-                m.send(Type.NOTIFY_SIMULTANEOUS_SALES, (p1 + ";" + p2).getBytes());
-                int key = sharedData.getCounter();
-                // get reply
-                byte[] data = m.receive(1);
-                sharedData.putData(key,new String(data));
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+    public boolean notifySimultaneousSales(String p1, String p2) {
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            m.send(new SimultaneousSaleMessage(key,0,Type.REGISTER_EVENT, p1,p2));
+            // get reply
+            Message data = m.receive(key);
+            sharedData.putData(key,data.toString());
+            ReplyBooleanMessage res = (ReplyBooleanMessage) data;
+            return res.getSuccess();
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
+        return false;
     }
 
-    public void notifyConsecutiveSales(int n) {
-        new Thread(() -> {
-            try  {
-                // send request
-                m.send(Type.NOTIFY_CONSECUTIVE_SALES, (""+ n).getBytes());
-                int key = sharedData.getCounter();
-                // get reply
-                byte[] data = m.receive(1);
-                sharedData.putData(key,new String(data));
-            }  catch (Exception e) {
-                sharedData.putData(sharedData.getCounter(),"Erro ao conectar ao servidor.");
-            }
-        }).start();
+    public boolean notifyConsecutiveSales(int n) {
+        int key = sharedData.getCounter();
+        try  {
+            // send request
+            m.send(new ConsecutiveSaleMessage(key,0,Type.REGISTER_EVENT, n));
+            // get reply
+            Message data = m.receive(key);
+            sharedData.putData(key,data.toString());
+            ReplyBooleanMessage res = (ReplyBooleanMessage) data;
+            return res.getSuccess();
+        }  catch (Exception e) {
+            sharedData.putData(key,"Erro ao conectar ao servidor.");
+        }
+        return false;
     }
 
     public String getPendingReplies (){

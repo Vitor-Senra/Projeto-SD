@@ -1,17 +1,17 @@
 package Conn;
 
+import Aux.Message;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-
-////  todo mudar para funcionar no novo tipo de comunicação
 public class Demultiplexer implements AutoCloseable {
     private class Entry {
         public ReentrantLock lock = new ReentrantLock();
         public Condition cond = lock.newCondition();
-        private Deque<byte[]> queue = new ArrayDeque<>();
+        private Deque<Message> queue = new ArrayDeque<>();
         private Exception exception = null;
     }
 
@@ -40,15 +40,14 @@ public class Demultiplexer implements AutoCloseable {
         Thread bg = new Thread(() -> {
             try {
                 for (;;) {
-                    Frame frame = conn.receive();
-                    int tag = frame.getType().getValue();
-                    byte[] data = frame.getData();
+                    Message msg = conn.receive();
+                    int tag = msg.getId();
                     l.lock();
                     try {
                         Entry entry = getEntry(tag);
                         entry.lock.lock();
                         try {
-                            entry.queue.addLast(data);
+                            entry.queue.addLast(msg);
                             entry.cond.signal();
                         } finally {
                             entry.lock.unlock();
@@ -73,15 +72,11 @@ public class Demultiplexer implements AutoCloseable {
         bg.start();
     }
 
-    public void send(Frame frame) throws IOException {
-        this.conn.send(frame);
+    public void send(Message mensagem) throws IOException {
+        this.conn.send(mensagem);
     }
 
-    public void send(Type type, byte[] data) throws IOException {
-        this.conn.send(type, data);
-    }
-
-    public byte[] receive(int tag) throws IOException, InterruptedException {
+    public Message receive(int tag) throws IOException, InterruptedException {
         Entry entry = getEntry(tag);
         entry.lock.lock();
         try {

@@ -23,30 +23,36 @@ public class LojaImpl implements Loja {
         // todo
     }
 
-    public void getSalesQuantity(String product, int day){
+    public int getSalesQuantity(String product, int day){
         // todo
+        return 0;
     }
 
-    public void getSalesVolume(String product, int day){
+    public int getSalesVolume(String product, int day){
         // todo
+        return 0;
     }
 
-    public void getAverageSalesPrice(String product, int day){
+    public double getAverageSalesPrice(String product, int day){
         // todo
+        return 0.0;
     }
 
-    public void getMaxSalesPrice(String product, int day) {
+    public double getMaxSalesPrice(String product, int day) {
         // todo
+        return 0.0;
     }
 
     public void filterEvents(List<String> product, int day){
         // todo
     }
-    public void notifySimultaneousSales(String p1, String p2){
+    public boolean notifySimultaneousSales(String p1, String p2){
         // todo
+        return false;
     }
 
-    public void notifyConsecutiveSales(int n){
+    public boolean notifyConsecutiveSales(int n){
         // todo
+        return false;
     }
 }

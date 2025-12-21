@@ -2,6 +2,8 @@ package Client;
 
 import java.io.IOException;
 import java.util.Scanner;
+
+import Aux.SharedData;
 import Exceptions.*;
 import Server.Loja;
 
@@ -54,7 +56,6 @@ public class MenuPrincipal implements Runnable {
         String password = sc.nextLine();
         try{
             stub.fazerLogin(username, password);
-            System.out.println("Login efectuado com sucesso!");
             MenuClient menuCliente = new MenuClient(sc, stub);
             menuCliente.run();
         } catch (InvalidCredentialsException e){
