@@ -3,23 +3,20 @@ package Server;
 import Aux.Message;
 import Conn.Connection;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
-    private static final int nThreads = 5;
+    private static final int nThreads = 8;
 
     public static void main(String[] args) {
+        System.out.println("Servidor a iniciar...");
         Map<Integer, Skeleton> skeletons = new HashMap<>();
         skeletons.put(0, new LojaSkeleton(new LojaImpl()));
         ServerSocket ss;
-
+        ThreadPool threadPool = new ThreadPool(nThreads);
         try{
             ss = new ServerSocket(12345);
         } catch (Exception e){
@@ -36,13 +33,13 @@ public class Server {
                         while (true) {
                             Message msg = conn.receive();
                             Skeleton skel = skeletons.get(msg.getSkeletonId());
-                            new Thread(() -> {
+                            threadPool.submitTask(() -> {
                                 try {
                                     skel.Handle(msg, conn);
                                 } catch (Exception e) {
-                                    System.out.println("Erro ao processar pedido: " + e.getMessage());
+                                    System.out.println("Erro ao processar mensagem: " + e.getMessage());
                                 }
-                            }).start();
+                            });
                         }
                     } catch (java.io.EOFException e) {
                         System.out.println("Cliente desconectou-se (EOF).");
@@ -59,5 +56,4 @@ public class Server {
             }
         }
     }
-
 }

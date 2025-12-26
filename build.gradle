@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group = 'pt.uminho.sd'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+    }
+}
+
+task runServer(type: JavaExec) {
+    group = 'application'
+    description = 'Inicia o Servidor'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'Server.Server'
+    standardInput = System.in
+}
+
+task runClient(type: JavaExec) {
+    group = 'application'
+    description = 'Inicia o Cliente'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'Client.mainClient'
+    standardInput = System.in
+}
