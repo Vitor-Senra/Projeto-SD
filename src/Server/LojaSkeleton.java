@@ -30,7 +30,6 @@ public class LojaSkeleton implements Skeleton {
 
                 } catch (InvalidCredentialsException e) {
                     res = new ReplyBooleanMessage(methodId, 0, false);
-                    break;
                 }
                 conn.send(res);
                 break;
